@@ -1,3 +1,6 @@
+# Implemented a program which, given a folder with images, extracts and stores feature descriptors for all the images
+# in the folder.
+import traceback
 import cv2
 import json
 import os
@@ -26,7 +29,7 @@ def push_all_features_into_mango(collectionName):
         img_bgr = cv2.imread(HAND_DATASET + file)
         img_yuv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2YUV)
         img_gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
-
+        # Calling feature extracting methods and storing them into a dictionary
         feature_vector = {
             "name": file,
             "lbp": LBP.lbp(img_gray),
@@ -36,7 +39,7 @@ def push_all_features_into_mango(collectionName):
         with open(OUTPUT_DIR + file + ".json", "w") as fp:
             json.dump(feature_vector, fp, indent=4, sort_keys=True)
 
-        # inserting both feature vectors combined into database
+        # Storing both(CM,LBP) feature vectors as a single Document in database
         collectionName.hands.insert_one(feature_vector)
 
 
@@ -46,8 +49,8 @@ def main():
         mongoConnection = MongoClient('mongodb://localhost:27017/')
         push_all_features_into_mango(mongoConnection.multimedia_db)
 
-
-    except:
+    except Exception as detail:
+        traceback.print_exc()
         print("Failure connecting to DB")
 
 
