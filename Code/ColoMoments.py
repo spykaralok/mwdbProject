@@ -1,16 +1,16 @@
-import configparser
+# Program to extract Color moments of a given Image using available libraries.
 import cv2
-import os
 import numpy as np
-from PIL import Image
 from scipy.stats import skew
 
 
 # Function to extract color moments of a given image
 def colorFeature(img_out):
+    # Saving height, width, and channel  of a given image
     y_len, x_len, channel = img_out.shape
-    print(y_len)
+
     y, u, v = cv2.split(img_out)
+    # Defining needed variables to store mean,deviation, skew of different channels of an image
     meanOfY=[]
     meanofU=[]
     meanofV=[]
@@ -22,16 +22,11 @@ def colorFeature(img_out):
     skewofV = []
     color_feature_vector = []
 
-
-    l, w = 100, 100
     for i in range(0, y_len, 100):
-        temp_mean = []
-        temp_sd = []
-        temp_skew = []
 
         for j in range(0, x_len, 100):
             # Slicing image into 100*100 matrix
-
+            # using numpy package to determine mean and deviation of sub blocks
             meanimg = np.nanmean(img_out[i:i + 100, j:j + 100], axis=tuple(range(img_out[i:i + 100, j:j + 100].ndim-1)))
             deviationimg = np.std(img_out[i:i + 100, j:j + 100], axis=tuple(range(img_out[i:i + 100, j:j + 100].ndim-1)))
 
@@ -52,6 +47,7 @@ def colorFeature(img_out):
             skewOfY.append(skew(arr_y.flatten()))
             skewofU.append(skew(arr_u.flatten()))
             skewofV.append(skew(arr_v.flatten()))
-    color_feature_vector.extend([meanOfY, meanofU, meanofV, sdOfY, sdofU, sdofV,skewOfY, skewofU, skewofV])
-    return color_feature_vector
+
+    color_feature_vector = np.concatenate([meanOfY, meanofU, meanofV, sdOfY, sdofU, sdofV,skewOfY, skewofU, skewofV])
+    return color_feature_vector.tolist()
 
